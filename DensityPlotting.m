@@ -2,6 +2,7 @@ namestr = 'cMovie1';
 pixelsize = 71; %in nm
 fontsize = 16;
 pixelsperbin = 10;
+filtFWHM = 2; %in pixels
 
 load([namestr '_SPIFF.mat']);
 
@@ -54,3 +55,37 @@ colorbar;
 set(gca,'FontSize',fontsize,'Color','k');
 xlim([0 ceil(xsb(end)/100)*100]);
 ylim([0 ceil(ysb(end)/100)*100]);
+
+
+%make a single pixel histogram for the granules
+%smooth by a FWHM gaussian from start 
+%normalize and plot it 
+xlimits = [min(smalldata(:,2)) max(smalldata(:,2))];
+ylimits = [min(smalldata(:,3)) max(smalldata(:,3))];
+xrange = xlimits(2) - xlimits(1);
+yrange = ylimits(2) - ylimits(1);
+nbins = ceil([xrange yrange]);
+h = figure;
+nsb = hist3(smalldata(:,2:3),nbins); 
+xdb = linspace(xlimits(1),xlimits(2),size(nsb,1));
+ydb = linspace(ylimits(1),ylimits(2),size(nsb,2));
+close(h)
+
+sigfilt = filtFWHM/(2*sqrt(2*log(2)));%convert FWHM to sigma
+nsb_flit = imgaussfilt(nsb,sigfilt);
+nsb_flit_norm = nsb_flit./max(max(nsb_flit));
+
+figure(4)
+pcolor(xdb,ydb,nsb_flit_norm');
+set(gcf,'Name','Smoothed and Normalized Histogram');
+colormap inferno
+colorbar;
+set(gca,'FontSize',fontsize,'Color','k');
+xlim([0 ceil(xdb(end)/100)*100]);
+ylim([0 ceil(ydb(end)/100)*100]);
+
+nsb_thres = nsb_flit_norm>0.001;
+
+figure(5)
+imshow(flipud(nsb_thres'));
+set(gcf,'Name','Thresholded');
