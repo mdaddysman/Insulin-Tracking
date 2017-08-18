@@ -76,13 +76,10 @@ nsb_flit = imgaussfilt(nsb,sigfilt);
 nsb_flit_norm = nsb_flit./max(max(nsb_flit));
 
 figure(4)
-pcolor(xdb,ydb,nsb_flit_norm');
+imshow(flipud(255.*nsb_flit_norm'),inferno);
 set(gcf,'Name','Smoothed and Normalized Histogram');
-colormap inferno
 colorbar;
-set(gca,'FontSize',fontsize,'Color','k');
-xlim([0 ceil(xdb(end)/100)*100]);
-ylim([0 ceil(ydb(end)/100)*100]);
+set(gca,'FontSize',fontsize);
 
 nsb_thres = nsb_flit_norm>0.001;
 
