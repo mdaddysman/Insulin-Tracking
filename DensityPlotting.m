@@ -2,7 +2,7 @@ namestr = 'cMovie1';
 pixelsize = 71; %in nm
 fontsize = 16;
 pixelsperbin = 10;
-filtFWHM = 2; %in pixels
+filtFWHM = 1.5; %in pixels
 
 load([namestr '_SPIFF.mat']);
 
@@ -81,7 +81,7 @@ set(gcf,'Name','Smoothed and Normalized Histogram');
 colorbar;
 set(gca,'FontSize',fontsize);
 
-nsb_thres = nsb_flit_norm>0.001;
+nsb_thres = nsb_flit_norm>0.01;
 
 figure(5)
 imshow(flipud(nsb_thres'));
