@@ -9,8 +9,8 @@ pixelsize = 71; %nm from microscope
 sperframe = 0.1; %s per frame usually 0.1s (10 Hz)
 xlimit = [0 10];
 
-load([namestr '_msd_new.mat']); 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_msd_new.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 trajclass = ids(2,:) == 1; %select the class of trajectories 
 trajlength = ids(3,:) >= minlength; %select the long enough trajectories 
@@ -64,7 +64,7 @@ xlim(xlimit)
 xlabel('delta (s)')
 ylabel('MSD (um^2)')
 
-save([namestr '_class' num2str(ids(2,idxclass(1))) '_ensemblefit.mat'], ...
+save(['Working/' namestr '_class' num2str(ids(2,idxclass(1))) '_ensemblefit.mat'], ...
     't','avgmsdboth','avgmsdclass','fitboth','fitclass','resultboth','resultclass','fitlength','minlength','plusminusboth');
 
 %select the trajectories to make a pretty picture 

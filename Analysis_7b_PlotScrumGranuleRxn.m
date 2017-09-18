@@ -6,7 +6,7 @@ nframes = 3000;
 
 radius = 15; %how many pixels must the granule be in to be considered interacting 
 
-load([namestr '_radius_' num2str(radius) '_granulescruminter.mat']); 
+load(['Working/' namestr '_radius_' num2str(radius) '_granulescruminter.mat']); 
 
 intscrums = unique(interactions(:,7));
 numofintscrums = length(intscrums);

@@ -16,7 +16,7 @@ runsizeanalysis = false;
 %box)
 %col 9 is the ID for looking up the fit results in the viewer (1a)
 
-load([namestr '_traj.mat']);
+load(['Working/' namestr '_traj.mat']);
 
 %expand the size of the matrix
 trackedsmall(:,5:9) = zeros([size(trackedsmall,1) 5]);
@@ -157,7 +157,7 @@ end
 close(wh);
 %restore order - sort by traj, frame, large small
 tracked = sortrows(tracked,[4 3 5]);
-save([namestr '_sizeinter.mat'],'linkrange','tracked','runsizeanalysis');
+save(['Working/' namestr '_sizeinter.mat'],'linkrange','tracked','runsizeanalysis');
 if runsizeanalysis
-    save([namestr '_fits.mat'],'results','t','tfit','boxsize','pixelsize','ptImg');
+    save(['Working/' namestr '_fits.mat'],'results','t','tfit','boxsize','pixelsize','ptImg');
 end

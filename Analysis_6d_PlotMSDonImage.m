@@ -13,8 +13,8 @@ pixelsize = 71; %nm
 
 lscale = scalebar/pixelsize;
 
-load([namestr '_msd_new.mat']); 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_msd_new.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 I = imread([namestr '_Part1.tif']);
 
 trajclass = ids(2,:) == typeclass; %select the class of trajectories

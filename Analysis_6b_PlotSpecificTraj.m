@@ -10,8 +10,8 @@ sperframe = 0.1; %s per frame usually 0.1s (10 Hz)
 
 nvistraj = length(vistrajid);
 
-load([namestr '_msd_new.mat']); 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_msd_new.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 trajclass = ids(2,:) == typeclass; %select the class of trajectories 
 

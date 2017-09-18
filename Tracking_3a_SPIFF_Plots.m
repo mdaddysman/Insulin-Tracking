@@ -4,14 +4,14 @@ fontsize = 16;
 dataset = 's'; % s or l for small or large 
 
 if strcmp(dataset,'s') == 1
-    load([namestr '_SPIFF.mat'],'smalldata');
+    load(['Working/' namestr '_SPIFF.mat'],'smalldata');
     clist = smalldata(:,2:3);
-    load([namestr '_filtered.mat'],'smalldata');
+    load(['Working/' namestr '_filtered.mat'],'smalldata');
     data = smalldata(:,2:3);
 else
-    load([namestr '_SPIFF.mat'],'largedata');
+    load(['Working/' namestr '_SPIFF.mat'],'largedata');
     clist = largedata(:,2:3);
-    load([namestr '_filtered.mat'],'largedata');
+    load(['Working/' namestr '_filtered.mat'],'largedata');
     data = largedata(:,2:3);
 end
     

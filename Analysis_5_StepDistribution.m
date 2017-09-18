@@ -7,7 +7,7 @@ limity = [10^-4 10^-1];
 limitx = [-200 200];
 pixelsize = 71; %nm 
 
-load([namestr '_sizeinter.mat']);
+load(['Working/' namestr '_sizeinter.mat']);
 
 stracked = tracked(tracked(:,5) == 1,1:5);
 ltracked = tracked(tracked(:,5) == 2,1:5);
