@@ -4,3 +4,4 @@
 *.mat
 *.m~
 .Rhistory
+*.Rdata
