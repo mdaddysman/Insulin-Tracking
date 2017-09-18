@@ -6,8 +6,8 @@ interactioncutoff = 22; %pixel difference to be considered interacting
 pixelsize = 71; %nm from microscope
 sperframe = 0.1; %s per frame usually 0.1s (10 Hz)
 
-load([namestr '_sizeinter.mat']); 
-load([namestr '_msd_new.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_msd_new.mat']); 
 
 %filter the trajectories for the required size 
 idxs = find(ids(3,:) >= fitlength); 
@@ -86,9 +86,9 @@ Tfull = table(ids(1,2:end)',ids(2,2:end)',ids(3,2:end)', ...
     'VariableNames',{'ID','SizeClass','Length'});
 
 
-writetable(T,[namestr '_fit' num2str(fitlength) '_inter' num2str(interactioncutoff) '__new_R.csv']);
-writetable(Tfull,[namestr '_fulllength.csv']);
-save([namestr '_fit' num2str(fitlength) '_inter' num2str(interactioncutoff) '_fulldatanew.mat'], ...
+writetable(T,['Output/' namestr '_fit' num2str(fitlength) '_inter' num2str(interactioncutoff) '__new_R.csv']);
+writetable(Tfull,['Output/' namestr '_fulllength.csv']);
+save(['Working/' namestr '_fit' num2str(fitlength) '_inter' num2str(interactioncutoff) '_fulldatanew.mat'], ...
     'T','idxs','tracked','msd','ids','fitlength','namestr','interactioncutoff','D');
 %use the above save for future GUI to explore results. 
 

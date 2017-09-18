@@ -1,1 +1,1 @@
-This folder contains all of the saved .mat files from MATLAB scripts. 
+This folder contains all of the saved `*.mat` files from MATLAB scripts. 

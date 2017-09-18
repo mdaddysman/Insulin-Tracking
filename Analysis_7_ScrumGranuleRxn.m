@@ -5,7 +5,7 @@ namestr = 'cMovie1';
 validitylength = 10; %how many frames must the scrum or granule last to be included in the analysis
 radius = 17; %how many pixels must the granule be in to be considered interacting 
 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 scrums = tracked(tracked(:,5) == 2,1:4);
 granules = tracked(tracked(:,5) == 1,1:4);
@@ -105,7 +105,7 @@ end
 
 interactions = potinter(potinter(:,7) > 0,:);
 
-save([namestr '_radius_' num2str(radius) '_granulescruminter.mat'], ...
+save(['Working/' namestr '_radius_' num2str(radius) '_granulescruminter.mat'], ...
     'validitylength','radius','interactions','potinter','vscrums','scrums');
 
 close(wh);

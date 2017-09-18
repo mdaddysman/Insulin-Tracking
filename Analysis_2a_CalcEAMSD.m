@@ -2,7 +2,7 @@ clearvars;
 
 namestr = '161101_3D3_P11_2d';
 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 sperframe = 0.1; 
 
@@ -85,5 +85,5 @@ for z=1:4
     
 end
 
-save([namestr '_eamsd.mat'],'eamsd','eatrmsd'); 
+save(['Working/' namestr '_eamsd.mat'],'eamsd','eatrmsd'); 
 close(wh);

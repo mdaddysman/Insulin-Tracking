@@ -2,7 +2,7 @@ clearvars;
 
 namestr = '170427_3B11M_P13_Plate2a_Top';
 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 %ids give the trajectory number, large or small, length 
 %msd matches the index of ids col 1 is the time displacement in frame #
@@ -69,5 +69,5 @@ for n=1:ntraj
     end
 end
 
-save([namestr '_msd_new.mat'],'msd','ids'); 
+save(['Working/' namestr '_msd_new.mat'],'msd','ids'); 
 close(wh);
