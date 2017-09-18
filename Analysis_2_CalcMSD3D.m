@@ -2,7 +2,7 @@ clearvars;
 
 namestr = '170721imaris';
 
-load([namestr '_sizeinter.mat']); 
+load(['Working/' namestr '_sizeinter.mat']); 
 
 %ids give the trajectory number, large or small, length 
 %msd matches the index of ids col 1 is the time displacement in frame #

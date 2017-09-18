@@ -5,7 +5,7 @@ rl = 10;
 nframes = 100; 
 width = 860; height = 800; 
 
-load([namestr '_filtered.mat']); 
+load(['Working/' namestr '_filtered.mat']); 
 
 image = zeros([height width 3 nframes],'uint8'); 
 

@@ -1,7 +1,7 @@
 namestr = '170427_3B11M_P13_Plate2a_Top';
 radius = 10;  
 
-load([namestr '_combine.mat']);
+load(['Working/' namestr '_combine.mat']);
 
 nframes = max(alldata(:,1));
 
@@ -25,7 +25,7 @@ end
 
 smalldata = alldata(alldata(:,4) == 0,:);
 
-save([namestr '_filtered.mat'],'smalldata','largedata','alldata');
+save(['Working/' namestr '_filtered.mat'],'smalldata','largedata','alldata');
 close(wh);
     
     
