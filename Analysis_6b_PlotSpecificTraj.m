@@ -1,11 +1,15 @@
 clearvars; 
 
-namestr = '161101_3D3_P11_2b_bottom'; 
+namestr = '170427_3B11M_P13_Plate2a_Top'; 
 
-vistrajid = [25969, 59137, 38034, 60977]; %161101_3D3_P11_2b_bottom
+%vistrajid = [408, 409, 363];
+%vistrajid = [28644, 26500, 33003, 48592, 35696];
+vistrajid = [41759, 47701, 48593, 30661, 23456];
+%vistrajid = [25969, 59137, 38034, 60977]; %161101_3D3_P11_2b_bottom
 %vistrajid = [29153, 18693, 19670, 9470]; %161101_3D3_P11_2c_top
 %vistrajid = [27888, 29872, 25208, 38562]; %161101_3D3_P11_2d
 typeclass = 1;
+scalelabeloffset = 6;
 sperframe = 0.1; %s per frame usually 0.1s (10 Hz)
 
 nvistraj = length(vistrajid);
@@ -55,7 +59,7 @@ if ishghandle(3)
 end
 figure(3)
 set(gcf,'Position',[100 100 400 400],'Color',[1 1 1]);
-gridn = ceil(sqrt(nvistraj));
+gridn = ceil(sqrt(nvistraj+1));
 mfct = 1/gridn;
 for m=1:nvistraj
     curr = coord(coord(:,1) == visids(1,m),:);
@@ -73,13 +77,30 @@ for m=1:nvistraj
     xlim([-limit limit])
     ylim([-limit limit])
     axis square
-    if(m == nvistraj)
-        line([limit-1-14.0845 limit-1],[-limit+3 -limit+3],'Color','w','LineWidth',6)
-    end
-%     text(-limit+2,limit-2,[num2str(m) '. ' num2str(visids(1,m))],'Color','w','FontSize',14);
+   
+    %text(-limit+2,limit-2,[num2str(m) '. ' num2str(visids(1,m))],'Color','w','FontSize',14);
+    text(-limit+2,limit-2,num2str(m),'Color','w','FontSize',14);
 %     if(m == 1)
 %         ostr = strrep(namestr,'_',' ');
 %         text(-limit,-limit+2,[ostr ': ' num2str(vistrajl)],'Color','w','FontSize',12);
 %     end
 end
+xs = mfct.*mod(m,gridn);
+ys = mfct.*floor((m)/gridn);
+h = subplot('Position',[xs+0.001 1-mfct-ys+0.001 mfct-0.002 mfct-0.002]);
+z = zeros(size(curr(:,2)))'; 
+set(gca,'Color',[0 0 0],'xtick',[],'ytick',[],'CLim',[0 max(visids(3,:))*sperframe]);
+xlim([-limit limit])
+ylim([-limit limit])
+axis square
+scalebarx = [limit-1-14.0845 limit-1];
+line(scalebarx,[-limit+3 -limit+3],'Color','w','LineWidth',6)
+text((scalebarx(2)-scalebarx(1))/2+scalebarx(1),-limit+scalelabeloffset,'1 \mum', ...
+    'Color','w','FontSize',14,'HorizontalAlignment','center');
+cbar = colorbar('Location','north','FontSize',14);
+cbar.Color = 'w';
+cbar.Label.String = 'time (s)';
+cbar.TickLength = 0.1;
+cbar.LineWidth = 2;
+
 tightfig;
