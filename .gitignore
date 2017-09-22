@@ -6,3 +6,4 @@
 .Rhistory
 *.Rdata
 *.png
+combine_data.R
