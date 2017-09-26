@@ -45,7 +45,7 @@ theme.traj <- theme(panel.background = element_rect(fill = 'black'), line = elem
                     strip.background = element_blank(), strip.text = element_blank(), legend.position = "bottom")
 scale <- 500 # in nm
 scalelength <- scale / pixelsize
-
+overlaycolor <- 'forestgreen' #'chartreuse'
 
 ui <- navbarPage(
   title = "Trajectory Analysis", selected = "MSD", theme = shinytheme("cerulean"), id ="navbar",
@@ -248,8 +248,8 @@ server <- function(input, output) {
       labs(x = expression(Delta~"[s]"), y = "MSD ["~mu~"m"^{"2"}~"]")
     if(!is.null(input$display.table_row_last_clicked)) {
       seldata <- data %>% filter(uniqueID == data.display$uniqueID[input$display.table_row_last_clicked])
-      p <- p + geom_line(data = seldata, aes(x=lagtime, y=MSDum), color = 'chartreuse', alpha = as.numeric(input$alpha_adjust), size = as.numeric(input$line_adjust)) + 
-        geom_point(data = seldata, aes(x=lagtime, y=MSDum), color = 'chartreuse', size = as.numeric(input$point_adjust), alpha = as.numeric(input$alpha_adjust))
+      p <- p + geom_line(data = seldata, aes(x=lagtime, y=MSDum), color = overlaycolor, alpha = as.numeric(input$alpha_adjust), size = as.numeric(input$line_adjust)) + 
+        geom_point(data = seldata, aes(x=lagtime, y=MSDum), color = overlaycolor, size = as.numeric(input$point_adjust), alpha = as.numeric(input$alpha_adjust))
     }
     p}
   )
@@ -266,8 +266,8 @@ server <- function(input, output) {
       labs(x = expression(Delta~"[s]"), y = "MSD ["~mu~"m"^{"2"}~"]")
     if(!is.null(input$display.table_row_last_clicked)) {
       seldata <- data %>% filter(uniqueID == data.display$uniqueID[input$display.table_row_last_clicked])
-      p <- p + geom_line(data = seldata, aes(x=lagtime, y=MSDum), color = 'chartreuse', alpha = as.numeric(input$alpha_adjust), size = as.numeric(input$line_adjust)) + 
-        geom_point(data = seldata, aes(x=lagtime, y=MSDum), color = 'chartreuse', size = as.numeric(input$point_adjust), alpha = as.numeric(input$alpha_adjust))
+      p <- p + geom_line(data = seldata, aes(x=lagtime, y=MSDum), color = overlaycolor, alpha = as.numeric(input$alpha_adjust), size = as.numeric(input$line_adjust)) + 
+        geom_point(data = seldata, aes(x=lagtime, y=MSDum), color = overlaycolor, size = as.numeric(input$point_adjust), alpha = as.numeric(input$alpha_adjust))
     }
     p}
   )
