@@ -4,13 +4,14 @@ library('dplyr')
 
 #set the working directory using 'setwd()'
 
-filename <- "170427_3B11M_P13_Plate2a_Top"
+filename <- "170427_3B11M_P13_Plate2a_Bottom"
 secperframe <- 0.1
 pixelsize <- 71 #nm
 
 msd <- read.csv(paste0("Output/",filename,"_msdfull_R.csv"), header = FALSE)
 ids <- read.csv(paste0("Output/",filename,"_msdids_R.csv"), header = TRUE)
 fits <- read.csv(paste0("Output/",filename,"_fit10_inter22__new_R.csv"), header = TRUE)
+pos <- read.csv(paste0("Output/",filename,"_trajpos_R.csv"), header = TRUE)
 
 pixelsizeum <- pixelsize/1000
 
@@ -27,7 +28,12 @@ fits$SizeClass <- as.character(fits$SizeClass)
 data <- left_join(data1,fits, by = c("ID","SizeClass")) %>% mutate(uniqueID = paste0(as.character(ID),SizeClass)) %>%
   mutate(lagtime = lagframe*secperframe, MSDum = MSD*pixelsizeum^2, lengthtime = length*secperframe) %>% select(-Length,-Size,-NumSizeErrors)
 
+positions = pos
+positions$class <-  revalue(as.character(positions$class),c("2"="L", "1"="S"))
+positions <- positions %>% mutate(uniqueID = paste0(as.character(id),class), realtime = time * secperframe) %>% 
+  select(realtime,frametime = time,x,y,uniqueID,ID = id, SizeClass = class)
 
-rm(list=setdiff(ls(), c("data","filename","pixelsize","secperframe")))
-v <- 0.1
+#add MSD
+rm(list=setdiff(ls(), c("data","positions","filename","pixelsize","secperframe")))
+v <- 0.2
 save.image(file = paste0("Output/",filename,"_shiny.Rdata"))
