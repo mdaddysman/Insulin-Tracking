@@ -1,12 +1,13 @@
 clearvars;
 global gridX gridY fitpicture
-namestr = '170427_3B11M_P13_Plate2a_Top';
+namestr = 'Simulated1';
 nparts = 3;
 pixelsize = 71; %nm - set by the microscope
 boxsize = 30; %in pixels (should be an even number)
 ctol = 2; %the +/- tolerence for the center to be considered a valid result
 
 runsizeanalysis = false;
+runinteraction = false;
 
 %this script adds 5 columns & combines the tracked variables
 %col 5 is a small (1) or large (2) particle trajectory
@@ -35,6 +36,8 @@ wh = waitbar(0,'Distance Analysis Starting...');
 nframes = max(tracked(:,3));
 tic;
 
+if runinteraction
+
 for m=1:nframes
     fidxs = find(tracked(:,3) == m);
     tempdist = zeros(length(fidxs),1);
@@ -53,6 +56,8 @@ for m=1:nframes
     sec = round(tleft-hr*3600-mins*60);
     waitbar(m/nframes,wh,{['Distance Analysis Frame: ' num2str(m) ' of ' num2str(nframes)]; ...
         ['Time Remaining: ' num2str(hr,'%02i') ':' num2str(mins,'%02i') ':' num2str(sec,'%02i')]});
+end
+
 end
 
 if runsizeanalysis

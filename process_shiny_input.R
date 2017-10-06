@@ -4,7 +4,7 @@ library('dplyr')
 
 #set the working directory using 'setwd()'
 
-filename <- "170427_3B11M_P13_Plate2a_Bottom"
+filename <- "Simulated1"
 secperframe <- 0.1
 pixelsize <- 71 #nm
 

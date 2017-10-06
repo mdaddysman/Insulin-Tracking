@@ -15,9 +15,15 @@ library('DT')
 library('viridis')
 library('shinythemes')
 
-setwd('..')
-filename <- "170427_3B11M_P13_Plate2a_Bottom"
-load(paste0("Output/",filename,"_shiny.Rdata"))
+filename <- "Simulated1"
+deploy <- TRUE
+
+if (deploy) {
+  load(paste0(filename,"_shiny.Rdata"))
+} else {
+  setwd('..')
+  load(paste0("Output/",filename,"_shiny.Rdata"))
+}
 w <- 1 #Deff distance in um
 data <- data %>% mutate(Deff = w^2/4*(4*D/(alpha*w^2))^(1/alpha))
 data.numlength <- data %>% select(ID,SizeClass,lengthtime,D,alpha) %>% unique()
@@ -56,9 +62,9 @@ ui <- navbarPage(
                     h4(paste0("Filename: ",filename)),
                     "Equations:   ",
                     tags$ul(
-                      tags$li("\\( MSD = 4 \\Gamma \\Delta^{\\alpha} \\),  "),
-                      tags$li("\\( D_{eff} \\equiv D(t = \\tau) = \\frac{\\omega^{2}}{4}\\Big(\\frac{4\\Gamma}{\\omega^{2}}\\Big)^{1/\\alpha}  \\),",
-                              " where \\( \\omega^{2} = \\) ",w,"\\( \\mu m^{2} \\)")
+                      tags$li("\\( MSD = 4 \\Gamma \\Delta^{\\alpha} \\)  ")
+                      #tags$li("\\( D_{eff} \\equiv D(t = \\tau) = \\frac{\\omega^{2}}{4}\\Big(\\frac{4\\Gamma}{\\omega^{2}}\\Big)^{1/\\alpha}  \\),",
+                      #        " where \\( \\omega^{2} = \\) ",w,"\\( \\mu m^{2} \\)")
                     ),
                     h4(textOutput("numTraj1")),
                     h4(textOutput("numTraj2")),
@@ -66,7 +72,7 @@ ui <- navbarPage(
                       tabPanel("Data Display",
                                column(6,
                                       sliderInput("traj_length", label = "Trajectory Length [s]",
-                                                  min = trajrange[1], max = trajrange[2], value = 25, step = 0.1, round = -1),
+                                                  min = trajrange[1], max = trajrange[2], value = c(100,200), step = 0.1, round = -1),
                                       selectInput("type", label = "Type:",
                                                   choices = c("All","Granules","Scrums"))
                                ),
@@ -122,10 +128,10 @@ ui <- navbarPage(
              ),
              column(4,
                     tabsetPanel(
-                      tabPanel("Select Table", tableOutput("select.info") ),
                       tabPanel("Select Plot", plotOutput("select.traj"),
                                "Scale bar: ",scale," nm"
-                      )
+                      ),
+                      tabPanel("Select Table", tableOutput("select.info") )
                     )
              )
            ),
@@ -138,10 +144,10 @@ ui <- navbarPage(
                     "Scale bar: ",scale," nm"
              )
            )
-  ),
-  tabPanel(title = "Compare"),
-  tabPanel(title = "Data Sets"),
-  tabPanel(title = "Close", value = "close")
+  )
+  #tabPanel(title = "Compare"),
+  #tabPanel(title = "Data Sets"),
+  #tabPanel(title = "Close", value = "close")
 )
 
 # Define server logic required to draw a histogram
@@ -159,25 +165,29 @@ server <- function(input, output) {
   
   data.filter <- reactive(
     if(input$type == "Granules") {
-      filter(data,lengthtime >= as.numeric(input$traj_length)) %>% filter(SizeClass == "S")
+      filter(data,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2])) %>% 
+        filter(SizeClass == "S")
     } else if(input$type == "Scrums") {
-      filter(data,lengthtime >= as.numeric(input$traj_length)) %>% filter(SizeClass == "L")
+      filter(data,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2])) %>% 
+        filter(SizeClass == "L")
     } else {
-      filter(data,lengthtime >= as.numeric(input$traj_length))
+      filter(data,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2]))
     }
   )
   
   data.numlength.filter <- reactive(
-    filter(data.numlength, lengthtime >= as.numeric(input$traj_length))
+    filter(data.numlength, lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2]))
   )
   
   data.ID.filter <- reactive(
     if(input$type == "Granules") {
-      filter(data.ID,lengthtime >= as.numeric(input$traj_length)) %>% filter(SizeClass == "S")
+      filter(data.ID,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2])) %>% 
+        filter(SizeClass == "S")
     } else if(input$type == "Scrums") {
-      filter(data.ID,lengthtime >= as.numeric(input$traj_length)) %>% filter(SizeClass == "L")
+      filter(data.ID,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2])) %>% 
+        filter(SizeClass == "L")
     } else {
-      filter(data.ID,lengthtime >= as.numeric(input$traj_length))
+      filter(data.ID,lengthtime >= as.numeric(input$traj_length[1])) %>% filter(lengthtime <= as.numeric(input$traj_length[2]))
     }
   )
   
@@ -205,8 +215,11 @@ server <- function(input, output) {
     ggplot(data.numlength,aes(x=lengthtime, color = SizeClass)) + 
       stat_ecdf(geom = "step", size = 1.5) + 
       scale_color_brewer(palette = "Set1", labels = c("scrum", "granule"), name = NULL) + 
-      geom_vline(xintercept = 1+as.numeric(input$traj_length), size = 1) + 
-      scale_x_log10() + labs(x = "trajectory length [s]", y = "CDF") + theme.dist + 
+      #geom_vline(xintercept = 1+as.numeric(input$traj_length), size = 1) + 
+      annotate("rect", xmin = as.numeric(input$traj_length[1]), xmax = as.numeric(input$traj_length[2]), 
+               ymin = -Inf, ymax = Inf, fill = 'deepskyblue1', alpha = 0.4) +
+      #scale_x_log10() + 
+      labs(x = "trajectory length [s]", y = "CDF") + theme.dist + 
       theme(text = element_text(size = as.numeric(input$fontsize_adjust)), legend.position = c(0.85,0.12), legend.background = element_blank())
   )
   
@@ -303,7 +316,7 @@ server <- function(input, output) {
       sel <- nearPoints(data.filter(), input$msd.click, maxpoints = 5)
     }
     sel %>%  mutate(type = dplyr::if_else(SizeClass == "S","granule","scrum")) %>% 
-      mutate(ID = as.integer(ID)) %>% select(ID, type, alpha, Deff = D) %>% unique()
+      mutate(ID = as.integer(ID)) %>% select(ID, type, alpha, gamma = D) %>% unique()
   }, include.rownames=FALSE, digits = 3, display = c("s","d","s","f","E"))
   
   output$select.traj <- renderPlot({

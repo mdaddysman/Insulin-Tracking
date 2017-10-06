@@ -9,3 +9,5 @@
 combine_data.R
 *.tif
 Animated_trajectory.R
+Make_Sim_Image.m
+*.dcf
