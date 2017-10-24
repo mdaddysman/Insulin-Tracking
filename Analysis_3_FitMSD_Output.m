@@ -1,6 +1,6 @@
 clearvars; 
 
-namestr = '170427_3B11M_P13_Plate2a_Bottom'; 
+namestr = 'Simulated1'; 
 fitlength = 10; %number of points to fit for MSD, also min MSD to be included
 interactioncutoff = 22; %pixel difference to be considered interacting 
 pixelsize = 71; %nm from microscope

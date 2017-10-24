@@ -1,6 +1,6 @@
 clearvars;
 
-namestr = '170427_3B11M_P13_Plate2a_Top';
+namestr = 'Simulated1';
 
 load(['Working/' namestr '_sizeinter.mat']); 
 
