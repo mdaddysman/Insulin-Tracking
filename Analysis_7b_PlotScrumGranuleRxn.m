@@ -41,25 +41,7 @@ for m=1:nexitevents
 end
 
 
-figure(1)
-plot(enterplot(:,1),enterplot(:,2),'.b',exitplot(:,1),exitplot(:,2),'.r','MarkerSize',16)
-xlim([0 sperframe*nframes]);
-ylim([0 numofintscrums+1]);
-xlabel('time (s)')
-ylabel('scrum')
-legend('Enter','Exit','Location','Northwest')
-set(gca,'FontSize',16,'YTick',[])
-for m=1:numofintscrums
-    temp = scrums(scrums(:,4) == intscrums(m),:);
-    patch('XData',[sperframe*temp(1,3) sperframe*temp(1,3) sperframe*temp(end,3) sperframe*temp(end,3)], ...
-        'YData', [m-0.25 m+0.25 m+0.25 m-0.25],...
-        'FaceColor','black','EdgeColor','none');
-end
-set(gca,'children',flipud(get(gca,'children')))
-
-
-tightfig;
-set(gcf,'Position',[100 190 975 850]);
+%used to make fig 1 here 
 
 %figure out when the next enter / exit event occurs after the previous
 %event
@@ -123,15 +105,83 @@ for m=1:length(ids)
     texitnext = [texitnext temp2'];
 end
 
+%process enter -> exit event 
+ids_enter = unique(enterevents(:,7));
+ids_exit = unique(exitevents(:,7));
+ids_both = intersect(ids_enter,ids_exit);
+tenterexit = [];
+enterexitidstime = [];
+for m=1:length(ids_both)
+    enters = squeeze(enterevents(enterevents(:,7) == ids_both(m),4));
+    enters = sort(enters);
+    exits = squeeze(exitevents(exitevents(:,7) == ids_both(m),4));
+    exits = sort(exits);
+    
+    %scroll through the enters and find the next exit and next enter
+    for n=1:length(enters)
+        temp = exits - enters(n); %find the distance from the current enter to the exits
+        temp2 = sort(temp(temp >= 0));
+        if isempty(temp2)
+            break; %no more exits so break the loop 
+        end
+        currval = temp2(1);
+        exitidx = find(currval == temp,1); 
+        if n ~= length(enters) %if it isn't the last enter even check the next one
+            if exits(exitidx) > enters(n+1) %check to make sure there isn't another enter event before this exit 
+                continue; %catch on the next loop
+            end
+        end
+        %if all this passes we have a enter -> exit event found so record
+        %it
+        tdiff = exits(exitidx) - enters(n);
+        tenterexit = [tenterexit tdiff];
+        enterexitidstime = [enterexitidstime; [ids_both(m) enters(n) exits(exitidx)]];
+    end
+    
+end
+
+enter2exitplot = [[enterexitidstime(:,2) enterexitidstime(:,1)]; [enterexitidstime(:,3) enterexitidstime(:,1)]];
+enter2exitplot(:,1) = enter2exitplot(:,1).*sperframe;
+for m=1:length(enter2exitplot)
+    idx = find(enter2exitplot(m,2) == intscrums);
+    enter2exitplot(m,2) = idx;
+end
+figure(1)
+ph = plot(enterplot(:,1),enterplot(:,2),'.b',exitplot(:,1),exitplot(:,2),'.r', ...
+    enter2exitplot(:,1),enter2exitplot(:,2),'og','MarkerSize',16);
+ph(3).LineWidth = 4;
+ph(3).MarkerSize = 8;
+ph(3).Color = [34, 139, 34]./255;
+xlim([0 sperframe*nframes]);
+ylim([0 numofintscrums+1]);
+xlabel('time (s)')
+ylabel('scrum')
+legend('Enter','Exit','Location','Northwest')
+set(gca,'FontSize',16,'YTick',[])
+for m=1:numofintscrums
+    temp = scrums(scrums(:,4) == intscrums(m),:);
+    patch('XData',[sperframe*temp(1,3) sperframe*temp(1,3) sperframe*temp(end,3) sperframe*temp(end,3)], ...
+        'YData', [m-0.25 m+0.25 m+0.25 m-0.25],...
+        'FaceColor','black','EdgeColor','none');
+end
+set(gca,'children',flipud(get(gca,'children')))
+
+
+tightfig;
+set(gcf,'Position',[100 190 975 850]);
+
+
 tenternext = tenternext.*sperframe;
 texitnext = texitnext.*sperframe;
+tenterexit = tenterexit.*sperframe;
 
 figure(4)
 histogram(tenternext,'FaceColor','b','Normalization','pdf','BinMethod','fd')
 hold on
 histogram(texitnext,'FaceColor','r','Normalization','pdf','BinMethod','fd')
+histogram(tenterexit,'FaceColor','g','Normalization','pdf','BinMethod','fd')
 hold off
-legend('Enter','Exit') 
+legend('Enter','Exit','Enter -> Exit') 
 xlabel('time until next event (s)')
 ylabel('pdf')
 title('distribution of time until next event')
@@ -141,8 +191,9 @@ figure(5)
 histogram(tenternext,'FaceColor','b','Normalization','cdf','BinMethod','fd')
 hold on
 histogram(texitnext,'FaceColor','r','Normalization','cdf','BinMethod','fd')
+histogram(tenterexit,'FaceColor','g','Normalization','cdf','BinMethod','fd')
 hold off
-legend('Enter','Exit') 
+legend('Enter','Exit','Enter -> Exit') 
 xlabel('time until next event (s)')
 ylabel('cdf')
 title('cdf of time until next event')
@@ -150,6 +201,7 @@ set(gca,'FontSize',16);
 
 entertime = histogram2pts(tenternext,'Normalization','pdf','BinMethod','fd');
 exittime = histogram2pts(texitnext,'Normalization','pdf','BinMethod','fd');
+enter2exittime = histogram2pts(tenterexit,'Normalization','pdf','BinMethod','fd');
 
 opt = optimset('Display','none','TolFun',10^-8,'TolX',10^-8);
 efit = @(x,t)x(1).*exp(-x(2).*t);
@@ -164,21 +216,31 @@ result(2,1:2) = r;
 ci = nlparci(r,res,'jacobian',J);
 result(2,3) = ci(2,2) - r(2);
 
+[r,~,res,~,~,~,J] = lsqcurvefit(efit,[1,1],enter2exittime(:,1),enter2exittime(:,2),[],[],opt);
+result(3,1:2) = r;
+ci = nlparci(r,res,'jacobian',J);
+result(3,3) = ci(2,2) - r(2);
+
 t1 = 0:max(max(entertime(:,1)),max(exittime(:,1)));
 
 figure(6)
 semilogy(entertime(:,1),entertime(:,2),'ob',exittime(:,1),exittime(:,2),'or', ...
+    enter2exittime(:,1),enter2exittime(:,2),'og', ...
     t1,efit(result(1,1:2),t1),'-b',t1,efit(result(2,1:2),t1),'-r',...
+    t1,efit(result(3,1:2),t1),'-g', ...
     'LineWidth',2.5,'MarkerSize',8);
 legend(['Enter: \tau = ' num2str(1/result(1,2),'%1.2f') ' s'], ...
-    ['Exit: \tau = ' num2str(1/result(2,2),'%1.2f') ' s']) 
+    ['Exit: \tau = ' num2str(1/result(2,2),'%1.2f') ' s'], ...
+    ['Enter -> Exit: \tau = ' num2str(1/result(3,2),'%1.2f') ' s']) 
 xlabel('time until next event (s)')
 ylabel('pdf')
 title('distribution of time until next event')
+ylim([10^-6 10^0])
 set(gca,'FontSize',16);
 
 entercdf = histogram2pts(tenternext,'FaceColor','b','Normalization','cdf','BinMethod','fd');
 exitcdf = histogram2pts(texitnext,'FaceColor','r','Normalization','cdf','BinMethod','fd');
+enter2exitcdf = histogram2pts(tenterexit,'FaceColor','g','Normalization','cdf','BinMethod','fd');
 
 [r,~,res,~,~,~,J] = lsqcurvefit(efit,[1,1],entercdf(:,1),1-entercdf(:,2),[],[],opt);
 resultcdf(1,1:2) = r;
@@ -190,15 +252,24 @@ resultcdf(2,1:2) = r;
 ci = nlparci(r,res,'jacobian',J);
 resultcdf(2,3) = ci(2,2) - r(2);
 
+[r,~,res,~,~,~,J] = lsqcurvefit(efit,[1,1],enter2exitcdf(:,1),1-enter2exitcdf(:,2),[],[],opt);
+resultcdf(3,1:2) = r;
+ci = nlparci(r,res,'jacobian',J);
+resultcdf(3,3) = ci(2,2) - r(2);
+
 figure(7)
 semilogy(entercdf(:,1),1-entercdf(:,2),'ob',exitcdf(:,1),1-exitcdf(:,2),'or', ...
+    enter2exitcdf(:,1),1-enter2exitcdf(:,2),'og', ...
     t1,efit(resultcdf(1,1:2),t1),'-b',t1,efit(resultcdf(2,1:2),t1),'-r',...
+    t1,efit(resultcdf(3,1:2),t1),'-g',...
     'LineWidth',2.5,'MarkerSize',8);
 legend(['Enter: \tau = ' num2str(1/resultcdf(1,2),'%1.2f') ' s'], ...
-    ['Exit: \tau = ' num2str(1/resultcdf(2,2),'%1.2f') ' s'])  
+    ['Exit: \tau = ' num2str(1/resultcdf(2,2),'%1.2f') ' s'],...
+    ['Enter -> Exit: \tau = ' num2str(1/resultcdf(3,2),'%1.2f') ' s'])  
 xlabel('time until next event (s)')
 ylabel('1-cdf')
 title('time until next event')
+ylim([10^-6 10^0])
 set(gca,'FontSize',16);
 
 efit2 = @(x,t)x(1).*exp(-x(2).*t)+x(3).*exp(-x(4).*t);
@@ -215,14 +286,24 @@ ci = nlparci(r,res,'jacobian',J);
 resultcdf2(2,5) = ci(2,2) - r(2);
 resultcdf2(2,6) = ci(4,2) - r(4);
 
+[r,~,res,~,~,~,J] = lsqcurvefit(efit2,[0.5,1,0.5,0.1],enter2exitcdf(:,1),1-enter2exitcdf(:,2),[],[],opt);
+resultcdf2(3,1:4) = r;
+ci = nlparci(r,res,'jacobian',J);
+resultcdf2(3,5) = ci(2,2) - r(2);
+resultcdf2(3,6) = ci(4,2) - r(4);
+
 
 figure(8)
 semilogy(entercdf(:,1),1-entercdf(:,2),'ob',exitcdf(:,1),1-exitcdf(:,2),'or', ...
+    enter2exitcdf(:,1),1-enter2exitcdf(:,2),'og', ...
     t1,efit2(resultcdf2(1,1:4),t1),'-b',t1,efit2(resultcdf2(2,1:4),t1),'-r',...
+    t1,efit2(resultcdf2(3,1:4),t1),'-g',...
     'LineWidth',2.5,'MarkerSize',8);
 legend(['Enter: \tau_1 = ' num2str(1/resultcdf2(1,2),'%1.2f') ' s, \tau_2 = ' num2str(1/resultcdf2(1,4),'%1.2f') ' s, A_1/A_2 = ' num2str(resultcdf2(1,1)/resultcdf2(1,3),'%1.3f')], ...
-    ['Exit: \tau_1 = ' num2str(1/resultcdf2(2,2),'%1.2f') ' s, \tau_2 = ' num2str(1/resultcdf2(2,4),'%1.2f') ' s, A_1/A_2 = ' num2str(resultcdf2(2,1)/resultcdf2(2,3),'%1.3f')])  
+    ['Exit: \tau_1 = ' num2str(1/resultcdf2(2,2),'%1.2f') ' s, \tau_2 = ' num2str(1/resultcdf2(2,4),'%1.2f') ' s, A_1/A_2 = ' num2str(resultcdf2(2,1)/resultcdf2(2,3),'%1.3f')], ...
+    ['Enter -> Exit: \tau_1 = ' num2str(1/resultcdf2(3,2),'%1.2f') ' s, \tau_2 = ' num2str(1/resultcdf2(3,4),'%1.2f') ' s, A_1/A_2 = ' num2str(resultcdf2(3,1)/resultcdf2(3,3),'%1.3f')])  
 xlabel('time until next event (s)')
 ylabel('1-cdf')
 title('time until next event')
+ylim([10^-3 10^0])
 set(gca,'FontSize',16);

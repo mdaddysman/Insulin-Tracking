@@ -15,8 +15,8 @@ library('DT')
 library('viridis')
 library('shinythemes')
 
-filename <- "Simulated1"
-deploy <- TRUE
+filename <- "170427_3B11M_P13_Plate2a_Bottom"
+deploy <- FALSE
 
 if (deploy) {
   load(paste0(filename,"_shiny.Rdata"))
@@ -218,7 +218,7 @@ server <- function(input, output) {
       #geom_vline(xintercept = 1+as.numeric(input$traj_length), size = 1) + 
       annotate("rect", xmin = as.numeric(input$traj_length[1]), xmax = as.numeric(input$traj_length[2]), 
                ymin = -Inf, ymax = Inf, fill = 'deepskyblue1', alpha = 0.4) +
-      #scale_x_log10() + 
+      scale_x_log10() + 
       labs(x = "trajectory length [s]", y = "CDF") + theme.dist + 
       theme(text = element_text(size = as.numeric(input$fontsize_adjust)), legend.position = c(0.85,0.12), legend.background = element_blank())
   )
